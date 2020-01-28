@@ -65,3 +65,29 @@ class MultiArmedBandit:
         else:
             return None
 
+
+if __name__ == "__main__":
+
+    RUNS = 2000
+    TIME = 1000
+    eps = [0.1, 0.01, 0.001]
+    bandits = [MultiArmedBandit(eps=eps) for eps in eps]
+    rewards = np.zeros((len(bandits), RUNS, TIME))
+    best_action_ratios = np.zeros(rewards.shape)
+
+    for b, bandit in enumerate(bandits):
+        for run in range(RUNS):
+            for t in range(TIME):
+                action = bandit.act()
+                reward = bandit.step(action)
+                rewards[b, run, t] = reward
+                best_action_ratios[b, run, t] = bandit.get_optimal_action_ratio()
+
+            bandit.reset()
+            if run % 100 == 0 and run != 0:
+                print(run)
+        print(b)
+        
+    mean_rewards = rewards.mean(axis=1)
+    mean_best_action_ratios = best_action_ratios.mean(axis=1)
+
